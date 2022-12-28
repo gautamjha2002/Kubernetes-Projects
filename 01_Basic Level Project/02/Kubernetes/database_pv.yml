@@ -8,6 +8,9 @@ spec:
   accessModes:
   - ReadWriteOnce
   storageClassName: todo-db-storageclass
-  awsElasticBlockStore:
-    volumeID: vol-0322a811e54e78573
-    fsType: ext4
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/db_data"
+#  awsElasticBlockStore:
+#    volumeID: vol-0322a811e54e78573
+#    fsType: ext4
