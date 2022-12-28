@@ -4,7 +4,7 @@ metadata:
   name: todo-app-db-statefulset
 spec:
   serviceName: todo-app-db-service
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: todo-app-mysql
@@ -23,13 +23,13 @@ spec:
         - containerPort: 3306
           name: mysql
         volumeMounts:
-        - name: todo-app-mysql-volume
+        - name: todo-todo-database-pv
           mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
-      name: todo-app-mysql-volume
+      name: todo-todo-database-pv
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 1Gi
+          storage: 3Gi
