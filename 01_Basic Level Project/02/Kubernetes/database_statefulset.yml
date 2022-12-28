@@ -25,11 +25,7 @@ spec:
         volumeMounts:
         - name: todo-database-pv
           mountPath: /var/lib/mysql
-  volumeClaimTemplates:
-  - metadata:
-      name: todo-database-pv
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 3Gi
+        volumes:
+          - name: todo-database-pv
+            persistentVolumeClaim:
+              claimName: todo-database-pvc
