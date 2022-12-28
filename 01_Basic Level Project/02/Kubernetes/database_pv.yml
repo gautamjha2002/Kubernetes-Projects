@@ -9,5 +9,5 @@ spec:
   - ReadWriteOnce
   storageClassName: todo-db-storageclass
   awsElasticBlockStore:
-    volumeID: vol-0eee30b119a9c5b99
+    volumeID: vol-0322a811e54e78573
     fsType: ext4

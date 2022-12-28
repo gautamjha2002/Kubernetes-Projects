@@ -25,7 +25,7 @@ spec:
         volumeMounts:
         - name: todo-database-pv
           mountPath: /var/lib/mysql
-        volumes:
-        - name: todo-database-pv
-          persistentVolumeClaim:
-          claimName: todo-database-pvc
+      volumes:
+      - name: todo-database-pv
+        persistentVolumeClaim:
+         claimName: todo-database-pvc
