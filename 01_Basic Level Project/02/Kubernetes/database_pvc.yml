@@ -8,4 +8,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: todo-app-storageclass
+  storageClassName: todo-db-storageclass
