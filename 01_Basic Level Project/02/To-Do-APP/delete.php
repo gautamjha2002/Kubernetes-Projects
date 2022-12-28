@@ -1,14 +1,16 @@
 <?php
 
 // Connect to the database server
-
-$host = "localhost:8082";
-$username = "root";
-$password = "root";
+$host = getenv("DB_HOST");
+$username = getenv("DB_USER");
+$password = getenv("DB_PASSWORD");
+$port = 3306;
 $dbname = "tododb";
-$tablename = 'tasks';
+$tablename = "tasks";
 
-$conn = mysqli_connect($host, $username, $password, $dbname);
+
+
+$conn = mysqli_connect($host, $username, $password, $dbname,$port);
 
 // Check connection
 if (!$conn) {
@@ -26,6 +28,7 @@ $sql = "DELETE FROM tasks WHERE id = $id";
 
 // Execute the DELETE statement
 if (mysqli_query($conn, $sql)) {
+    header("Location: tasks.php");
     echo "Record deleted successfully";
 } else {
     echo "Error deleting record: " . mysqli_error($conn);

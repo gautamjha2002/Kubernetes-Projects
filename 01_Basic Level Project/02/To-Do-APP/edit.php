@@ -1,13 +1,16 @@
 <?php
 
 // Connect to the database server
-$host = "localhost:8082";
-$username = "root";
-$password = "root";
+$host = getenv("DB_HOST");
+$username = getenv("DB_USER");
+$password = getenv("DB_PASSWORD");
+$port = 3306;
 $dbname = "tododb";
-$tablename = 'tasks';
+$tablename = "tasks";
 
-$conn = mysqli_connect($host, $username, $password, $dbname);
+
+
+$conn = mysqli_connect($host, $username, $password, $dbname,$port);
 
 // Check connection
 if (!$conn) {
@@ -45,9 +48,18 @@ mysqli_close($conn);
     <title>Document</title>
 </head>
 <body>
-
+<div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <a href="tasks.php">Home</a>
+        <a href="add.html">Add Task</a>
+        
+      </div>
+      <h2>Edit Task</h2>
+      <div id="main">
+        <button class="openbtn" onclick="openNav()">☰</button>  
+      </div> 
 <!-- Display the task details in a form -->
-<form  action="update.php" method="post" style="margin-top: 7%;">
+<form  action="update.php" method="post" >
   <label for="taskname">Taskname:</label><br>
   <input type="text" id="taskname" name="taskname" value="<?php echo $taskname; ?>"><br>
   <label for="date">Date:</label><br>

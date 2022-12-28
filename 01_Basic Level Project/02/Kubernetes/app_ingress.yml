@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: todo-app-ingress
+spec:
+  rules:
+  - host: gautam.todoapp.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: todo-app-web-service
+          servicePort: 30080

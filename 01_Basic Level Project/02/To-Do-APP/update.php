@@ -1,13 +1,15 @@
 <?php
 
 // Connect to the database server
-$host = "localhost:8082";
-$username = "root";
-$password = "root";
+$host = getenv("DB_HOST");
+$username = getenv("DB_USER");
+$password = getenv("DB_PASSWORD");
+$port = 3306;
 $dbname = "tododb";
-$tablename = 'tasks';
+$tablename = "tasks";
 
-$conn = mysqli_connect($host, $username, $password, $dbname);
+
+$conn = mysqli_connect($host, $username, $password, $dbname,$port);
 
 // Check connection
 if (!$conn) {
@@ -21,7 +23,7 @@ $date = $_POST["date"];
 $taskdescription = $_POST["taskdescription"];
 
 // Update the task in the database
-$sql = "UPDATE tasks SET taskname = '$taskname', date = '$date', taskdescription = '$taskdescription' WHERE id = $id";
+$sql = "UPDATE $tablename SET taskname = '$taskname', date = '$date', taskdescription = '$taskdescription' WHERE id = $id";
 
 if (mysqli_query($conn, $sql)) {
     // Redirect to the index page

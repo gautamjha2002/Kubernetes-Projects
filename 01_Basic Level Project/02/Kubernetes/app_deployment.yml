@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-web-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todo-app-web
+  template:
+    metadata:
+      labels:
+        app: todo-app-web
+    spec:
+      containers:
+      - name: todo-app-web
+        image: gautamjha3112002/todo-db-app:0.1
+        envFrom:
+        - configMapRef:
+            name: my-configmap
+        - secretRef:
+            name: my-secret
+        ports:
+        - containerPort: 80

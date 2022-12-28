@@ -1,13 +1,15 @@
 <?php
 // Connect to the database server
-$host = "localhost:8082";
-$username = "root";
-$password = "root";
-$dbname = 'tododb';
-$tablename = 'tasks';
+$host = getenv("DB_HOST");
+$username = getenv("DB_USER");
+$password = getenv("DB_PASSWORD");
+$port = 3306;
+$dbname = "tododb";
+$tablename = "tasks";
 
 
-$conn = mysqli_connect($host, $username, $password, $dbname);
+
+$conn = mysqli_connect($host, $username, $password, $dbname,$port);
 
 // Get the form data
 $taskname = $_POST['taskname'];
@@ -24,7 +26,7 @@ $sql = "INSERT INTO $tablename (taskname, date, taskdescription) VALUES ('$taskn
 
 // Execute the INSERT statement
 if (mysqli_query($conn, $sql)) {
-    header("Location: index.php");
+    header("Location: tasks.php");
 } else {
     echo "Error: " . $sql . "<br>" . mysqli_error($conn);
 }
