@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: todo-todo-database-pv
+  name: todo-database-pv
 spec:
   capacity:
     storage: 6Gi

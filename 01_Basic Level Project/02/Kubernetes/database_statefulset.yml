@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: todo-app-db-statefulset
+  name: todo-db-statefulset
 spec:
   serviceName: todo-app-db-service
   replicas: 1
@@ -23,11 +23,11 @@ spec:
         - containerPort: 3306
           name: mysql
         volumeMounts:
-        - name: todo-todo-database-pv
+        - name: todo-database-pv
           mountPath: /var/lib/mysql
   volumeClaimTemplates:
   - metadata:
-      name: todo-todo-database-pv
+      name: todo-database-pv
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
