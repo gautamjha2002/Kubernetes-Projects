@@ -38,8 +38,8 @@ environment{
                    script{
                         sh 'cd ${JOB_WORKSPACE}'
                         def yaml = readFile '01_Basic Level Project/03/Kubernetes/app_deployment.yml'
-                        yaml = yaml.replaceAll('Image_Name', "${IMAGE_NAME}")
-                        writeFile file: '"01_Basic Level Project/03/Kubernetes/app_deployment.yml"', text: yaml
+                        yaml = yaml.replaceAll('<Image>', "${IMAGE_NAME}")
+                        writeFile file: '01_Basic Level Project/03/Kubernetes/app_deployment.yml', text: yaml
 
                          kubectl apply -f "01_Basic Level Project/03/Kubernetes/configmap.yml"
                          kubectl apply -f "01_Basic Level Project/03/Kubernetes/secrets.yml"
