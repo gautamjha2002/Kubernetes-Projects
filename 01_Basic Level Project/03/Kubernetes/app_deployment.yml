@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: todo-app-web
-        image: <Image>
+        image: Image_Name
         envFrom:
         - configMapRef:
             name: my-configmap
