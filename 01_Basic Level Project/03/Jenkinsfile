@@ -1,0 +1,59 @@
+pipeline {
+    agent {
+    label 'kube'
+  }
+
+  environment{
+        DOCKER_USER = 'gautamjha3112002'
+        JOB_WORKSPACE = '/workspace/{env.JOB_NAME}/'
+        IMAGE_NAME = '${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID}'
+    }
+
+  stages{
+        stage('Fetch code'){
+            steps{
+                git branch: 'master', url: 'https://github.com/gautamjha2002/Kubernetes-Projects.git'
+            }
+        }
+        stage('Containerizing the App'){
+            steps{
+                sh 'cd ${JOB_WORKSPACE}'
+                sh 'docker build -t ${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID} "01_Basic Level Project/03/Dockerfile"'
+            }
+        }
+
+        stage('Pushing to DockerHub'){
+            steps{
+                withCredentials([string(credentialsId: 'dockerlogin', variable: 'dockerlogin')]) {
+                    sh 'docker login -u ${DOCKER_USER}  -p ${dockerlogin}'
+                    sh 'docker push ${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID}'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                timeout(time:5, unit:'DAYS'){
+                    input message: 'Approve Push to docker Hub'
+                }
+                   script{
+                        sh 'cd ${JOB_WORKSPACE}'
+                        yaml = yaml.replaceAll('<Image>', "${IMAGE_NAME}")
+                        writeFile file: '"01_Basic Level Project/03/Kubernetes/app_deployment.yml"', text: yaml
+
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/configmap.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/secrets.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/pv_storageclass.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_pv.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_pvc.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_statefulset.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_service.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/app_deployment.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/web_app_service.yml"'
+                        sh 'kubectl apply -f "01_Basic Level Project/03/Kubernetes/app_ingress.yml"'
+                    }
+            }
+        }
+    }
+}
+
