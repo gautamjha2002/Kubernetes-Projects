@@ -17,7 +17,7 @@ environment{
         stage('Containerizing the App'){
             steps{
                 sh 'cd ${JOB_WORKSPACE}'
-                sh 'docker build -t ${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID} "01_Basic Level Project/03/"'
+                sh 'docker build -t ${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID} "01_Basic_Level_Project/03/"'
             }
         }
 
@@ -37,22 +37,16 @@ environment{
                 }
                    script{
                         sh 'cd ${JOB_WORKSPACE}'
-                        sh 'pwd'
-                        def yaml = readFile '01_Basic\ Level\ Project/03/Kubernetes/app_deployment.yml'
-                        sh 'echo ${yaml}'
-                        yaml = yaml.replaceAll('<Image>', "${IMAGE_NAME}")
-                        writeFile file: '01_Basic Level Project/03/Kubernetes/app_deployment.yml', text: yaml
-
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/configmap.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/secrets.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/pv_storageclass.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_pv.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_pvc.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_statefulset.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/database_service.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/app_deployment.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/web_app_service.yml"
-                         kubectl apply -f "01_Basic Level Project/03/Kubernetes/app_ingress.yml"
+                        sh 'sed -i "s|<Image>|${DOCKER_USER}/${JOB_NAME}:0.${BUILD_ID}|g" 01_Basic_Level_Project/03/Kubernetes/app_deployment.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/configmap.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/secrets.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/pv_storageclass.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/database_pv.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/database_pvc.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/database_statefulset.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/database_service.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/app_deployment.yml'
+                         sh 'kubectl apply -f 01_Basic_Level_Project/03/Kubernetes/web_app_service.yml'
                     }
             }
         }
