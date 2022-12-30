@@ -37,7 +37,9 @@ environment{
                 }
                    script{
                         sh 'cd ${JOB_WORKSPACE}'
-                        def yaml = readFile '01_Basic Level Project/03/Kubernetes/app_deployment.yml'
+                        sh 'pwd'
+                        def yaml = readFile '01_Basic\ Level\ Project/03/Kubernetes/app_deployment.yml'
+                        sh 'echo ${yaml}'
                         yaml = yaml.replaceAll('<Image>', "${IMAGE_NAME}")
                         writeFile file: '01_Basic Level Project/03/Kubernetes/app_deployment.yml', text: yaml
 
