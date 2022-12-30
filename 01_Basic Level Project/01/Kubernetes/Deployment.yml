@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: My-Portfolio-deployment
+  name: my-portfolio-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: My-Portfolio
+      app: my-portfolio
   template:
     metadata:
       labels:
-        app: My-Portfolio
+        app: my-portfolio
     spec:
       containers:
-      - name: My-Portfolio
+      - name: my-portfolio
         image: gautamjha3112002/my-portfolio
         ports:
         - containerPort: 80

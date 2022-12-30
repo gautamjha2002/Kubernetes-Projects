@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: todo-db-statefulset
+spec:
+  serviceName: todo-app-db-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo-app-mysql
+  template:
+    metadata:
+      labels:
+        app: todo-app-mysql
+    spec:
+      containers:
+      - name: todo-app-mysql
+        image: mysql:5.7
+        envFrom:
+          - secretRef:
+              name: my-secret
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: todo-database-pv
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: todo-database-pv
+        persistentVolumeClaim:
+         claimName: todo-database-pvc
