@@ -12,9 +12,10 @@ This repository contains a collection of projects that demonstrate how to use Ku
 
 3. Setting up continuous integration and delivery (CI/CD) on Kubernetes: This project involves setting up a CI/CD pipeline on Kubernetes using tools such as Jenkins or GitLab CI. You can learn how to use Kubernetes objects such as Jobs and CronJobs to automate the building, testing, and deployment of your applications.
 
-4. Setting up a highly available Kubernetes cluster: This project involves setting up a Kubernetes cluster that is resilient to failures and can continue to operate even if one or more of its nodes goes down. You can learn how to use features such as etcd quorum, cluster federation, and node auto-repair to make your cluster highly available.
+[//]: # (4. Setting up a highly available Kubernetes cluster: This project involves setting up a Kubernetes cluster that is resilient to failures and can continue to operate even if one or more of its nodes goes down. You can learn how to use features such as etcd quorum, cluster federation, and node auto-repair to make your cluster highly available.)
 
-5. Setting up a Kubernetes cluster on a cloud provider: This project involves setting up a Kubernetes cluster on a cloud platform such as Amazon Web Services (AWS), Google Cloud Platform (GCP), or Microsoft Azure. You can learn how to use cloud-specific tools and services to set up and manage a Kubernetes cluster, and how to use load balancers and DNS to expose your applications to the outside world.
+[//]: # ()
+[//]: # (5. Setting up a Kubernetes cluster on a cloud provider: This project involves setting up a Kubernetes cluster on a cloud platform such as Amazon Web Services &#40;AWS&#41;, Google Cloud Platform &#40;GCP&#41;, or Microsoft Azure. You can learn how to use cloud-specific tools and services to set up and manage a Kubernetes cluster, and how to use load balancers and DNS to expose your applications to the outside world.)
 
 ### Medium Level Projects
 
