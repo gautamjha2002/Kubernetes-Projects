@@ -1,0 +1,202 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update package list
+      apt:
+        update_cache: yes
+    - name: Uninstall Older Docker and it's dependencies
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+    - name: Update Package list
+      apt:
+        update_cache: yes 
+    - name: installing packages to allow apt to use a repository over HTTPS
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - apt-transport-https
+        state: present
+    - name: Create Directory for GPG key
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: 0777
+    - name: Check if GPG key exists
+      stat:
+        path: /etc/apt/keyrings/docker.gpg
+      register: gpg_key_stat
+    - name: Download GPG key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      args:
+        executable: /bin/bash
+      when: gpg_key_stat.stat.exists == False
+    - name: Set read permission on GPG key
+      file:
+        path: /etc/apt/keyrings/docker.gpg
+        mode: "a+r"
+
+    - name: setting up the docker repository
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - name: Update the apt packge index
+      apt:
+        update_cache: yes
+    - name: Installing latest Docker Packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+    - name: Create /etc/docker directory
+      file:
+        path: /etc/docker
+        state: directory
+        mode: 0755
+    - name: Create /etc/docker/daemon.json file
+      file:
+        path: /etc/docker/daemon.json
+        state: touch
+        mode: 0755
+    - name: Add configuration to /etc/docker/daemon.json
+      lineinfile:
+        path: /etc/docker/daemon.json
+        line: '{ "exec-opts": ["native.cgroupdriver=systemd"] }'
+
+    - name: Enable Docker service
+      systemd:
+        name: docker
+        enabled: yes
+    - name: Swap off
+      command: swapoff -a
+
+    - name: Enable net.bridge.bridge-nf-call-iptables
+      lineinfile:
+        path: /etc/sysctl.conf
+        line: net.bridge.bridge-nf-call-iptables=1
+
+    - name: Download GPG key
+      get_url:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: /etc/apt/keyrings/kubernetes-archive-keyring.gpg 
+    - name: Add kubernetes apt repository
+      shell: |
+        echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    - name: Update the apt packge index
+      apt:
+        update_cache: yes
+    - name: Install kubelet, kubeadm, and kubectl
+      apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+    - name: Mark kubelet, kubeadm, and kubectl as hold packages
+      shell: |
+        sudo apt-mark hold kubelet kubeadm kubectl
+
+    - name: Install Go
+      apt:
+        name: golang-go
+        state: present
+
+    - name: Clone the cri-dockerd repository
+      git:
+        repo: https://github.com/Mirantis/cri-dockerd.git
+        dest: /home/ansible/CRI
+        
+    - name: build cri for docker daemon
+      shell: |
+        cd /home/ansible/CRI/
+        mkdir bin
+        go build -o bin/cri-dockerd
+        mkdir -p /usr/local/bin
+        install -o root -g root -m 0755 bin/cri-dockerd /usr/local/bin/cri-dockerd
+        cp -a packaging/systemd/* /etc/systemd/system
+        sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+
+    - name: Reload the daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable the cri-docker service
+      systemd:
+        name: cri-docker.service
+        state: started
+        enabled: yes
+
+    - name: Enable and start the cri-docker socket
+      systemd:
+        name: cri-docker.socket
+        state: started
+        enabled: yes
+    - name: Check if kubeadm log file exists
+      stat:
+        path: /home/ansible/kubeadm.log
+      register: kubeadm_log_file
+      when: inventory_hostname in groups['master']
+    - name: Initilizing cluster using kubeadm
+      command: kubeadm init --cri-socket unix:///var/run/cri-dockerd.sock
+      register: kubeadm_init_output
+      when:
+        - inventory_hostname in groups['master'] and kubeadm_log_file.stat.exists == False 
+    - name: Save kubeadm init output to file
+      copy:
+        content: "{{ kubeadm_init_output.stdout }}"
+        dest: /home/ansible/kubeadm.log
+      when: inventory_hostname in groups['master'] and kubeadm_log_file.stat.exists == False
+      
+    - name: Export KUBECONFIG
+      shell: |
+       export KUBECONFIG=/etc/kubernetes/admin.conf
+      when: inventory_hostname in groups['master']
+
+    - name: Create .kube directory
+      file:
+        path: $HOME/.kube
+        state: directory
+      when: inventory_hostname in groups['master']
+
+    - name: Check if config file exists at Home .kube directory
+      stat:
+        path: $HOME/.kube/config
+      register: kube_config_stat
+
+    - name: Copy kubernetes admin config
+      command: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+      when: inventory_hostname in groups['master'] and kube_config_stat.stat.exists == False
+
+    - name: Set ownership of kubernetes config file
+      file:
+        path: $HOME/.kube/config
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+      when: inventory_hostname in groups['master']
+
+    - name: Install Weave networking
+      shell: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+      when: inventory_hostname in groups['master']
+
+    - name: Extract/create kubeadm join command
+      shell: kubeadm token create --print-join-command
+      register: kubeadm_join_command
+      when: inventory_hostname in groups['master']
+    - name: set join command
+      set_fact:
+        join_command: "{{ kubeadm_join_command.stdout_lines[0] }}"
+      when: inventory_hostname in groups['master']
+
+    - name: Run kubeadm join command on worker nodes
+      command: "{% for host in groups['master'] %}  {{ hostvars[host].join_command }}  {% endfor %} --cri-socket unix:///var/run/cri-dockerd.sock"
+      when: inventory_hostname in groups['worker']
