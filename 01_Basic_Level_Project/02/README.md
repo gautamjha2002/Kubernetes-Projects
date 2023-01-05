@@ -26,16 +26,16 @@ This repository contains the source code and Kubernetes configuration files for 
 3. Create the Kubernetes objects for the application:
 
 ```commandline
-kubectl apply -f kubernetes/configmap.yml
-kubectl apply -f kubernetes/secrets.yml
-kubectl apply -f kubernetes/pv_storageclass.yml
-kubectl apply -f kubernetes/database_pv.yml
-kubectl apply -f kubernetes/database_pvc.yml
-kubectl apply -f kubernetes/database_statefulset.yml
-kubectl apply -f kubernetes/database_service.yml
-kubectl apply -f kubernetes/app_deployment.yml
-kubectl apply -f kubernetes/web_app_service.yml
-kubectl apply -f kubernetes/app_ingress.yml
+kubectl apply -f Kubernetes/configmap.yml
+kubectl apply -f Kubernetes/secrets.yml
+kubectl apply -f Kubernetes/pv_storageclass.yml
+kubectl apply -f Kubernetes/database_pv.yml
+kubectl apply -f Kubernetes/database_pvc.yml
+kubectl apply -f Kubernetes/database_statefulset.yml
+kubectl apply -f Kubernetes/database_service.yml
+kubectl apply -f Kubernetes/app_deployment.yml
+kubectl apply -f Kubernetes/web_app_service.yml
+kubectl apply -f Kubernetes/app_ingress.yml
 ```
 4. Access the application at the hostname specified in the app_ingress.yml file.
 
